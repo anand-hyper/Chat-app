@@ -1,0 +1,68 @@
+{% extends 'base.html' %} {% block content %}
+<div class="message-box">
+  <h2>Chat Room: {{code}}</h2>
+  <div class="messages" id="messages"></div>
+  <div class="inputs">
+    <input
+      type="text"
+      rows="3"
+      placeholder="Message"
+      name="message"
+      id="message"
+    />
+    
+    <button type="button" name="send" id="send-btn" onClick="sendMessage()">
+        ➤
+    </button>
+  </div>
+</div>
+<script type="text/javascript">
+  var socketio = io();
+
+  const messages = document.getElementById("messages");
+
+  const createMessage = (name, msg) => {
+    const isOwnMessage = name === "{{session['name']}}";  // Check if the message is from the current user
+    const alignmentClass = isOwnMessage ? "right" : "left";  // Class to align message based on user
+
+    // Function to format time as hh:mm AM/PM
+    const formatTime = (date) => {
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;  // Convert 0 to 12 for AM/PM formatting
+        minutes = minutes < 10 ? '0' + minutes : minutes;  // Add leading 0 to minutes if needed
+        return `${hours}:${minutes} ${ampm}`;
+    };
+
+    const content = `
+    <div class="text ${alignmentClass}">
+        <span>
+            <strong>${name}</strong>: ${msg}
+        </span>
+        <span class="time">${formatTime(new Date())}</span>
+    </div>
+    `;
+    messages.innerHTML += content;
+};
+
+
+
+
+  socketio.on("message", (data) => {
+    createMessage(data.name, data.message);
+  });
+
+  const sendMessage = () => {
+    const message = document.getElementById("message");
+    if (message.value == "") return;
+    socketio.emit("message", { data: message.value });
+    message.value = "";
+  };
+</script>
+{% for msg in messages %}
+<script type="text/javascript">
+  createMessage("{{msg.name}}", "{{msg.message}}");
+</script>
+{% endfor %} {% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post" class="form-container" onsubmit="return handleFormSubmit(event)">
+  <h2>Welcome to the Chat Room</h2>
+  <div class="input-group">
+    <label for="name">Name</label>
+    <input
+      type="text"
+      id="name"
+      placeholder="Enter your name"
+      name="name"
+      value="{{name}}"
+      required
+    />
+  </div>
+  <div class="input-group" id="room-code-group">
+    <label for="room-code">Room Code</label>
+    <input
+      type="text"
+      id="room-code"
+      placeholder="Enter Room Code"
+      name="code"
+      value="{{code}}"
+    />
+  </div>
+  <div class="button-group">
+    <button type="submit" id="join-room-btn" name="join" class="btn join-btn">Join Room</button>
+    <button type="submit" id="create-room-btn" name="create" class="btn create-btn">Create a Room</button>
+  </div>
+  {% if error %}
+  <div class="error-message">
+    <p>{{error}}</p>
+  </div>
+  {% endif %}
+</form>
+
+<script>
+function handleFormSubmit(event) {
+  const createRoomBtn = document.getElementById("create-room-btn");
+  const roomCodeInput = document.getElementById("room-code");
+
+  if (event.submitter === createRoomBtn) {
+    // If creating a room, remove the "required" attribute from room code
+    roomCodeInput.removeAttribute("required");
+  } else {
+    // If joining a room, make sure the "required" attribute is there
+    roomCodeInput.setAttribute("required", "required");
+  }
+}
+</script>
+
+{% endblock %}
